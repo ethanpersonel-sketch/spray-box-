@@ -1,0 +1,52 @@
+#include <ESP32Servo.h>
+
+#define BUTTON_PIN  21
+#define RELAY_PIN   18
+#define HUMIDIF_PIN 19
+#define SERVO_PIN   5  // Change selon ton câblage
+
+Servo myServo;         // Déclare le servo
+bool buttonPressed = false;
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(HUMIDIF_PIN, OUTPUT);
+
+  digitalWrite(RELAY_PIN, LOW);
+  digitalWrite(HUMIDIF_PIN, LOW);
+
+  myServo.attach(SERVO_PIN);     // Brancher le servo
+  myServo.write(0);              // Position initiale à 0°
+}
+
+void loop() {
+  if (digitalRead(BUTTON_PIN) == LOW && !buttonPressed) {
+    buttonPressed = true;
+
+    delay(10000);  // Attend 10 secondes
+    
+    // Tourner le servo à 180°
+    myServo.write(180);
+    delay(500);    // Laisse le temps au servo d’y aller (ajuste si besoin)
+
+    // Active relais et humidificateur
+    digitalWrite(RELAY_PIN, HIGH);
+    digitalWrite(HUMIDIF_PIN, HIGH);
+
+    delay(10000);  // Active pendant 10 secondes
+
+    // Désactive relais et humidificateur
+    digitalWrite(RELAY_PIN, LOW);
+    digitalWrite(HUMIDIF_PIN, LOW);
+
+    // Remet le servo à 0°
+    myServo.write(0);
+    delay(500);    // Laisse le temps au servo d’y aller
+  }
+
+  // Permet de recommencer si bouton relâché
+  if (digitalRead(BUTTON_PIN) == HIGH) {
+    buttonPressed = false;
+  }
+}
